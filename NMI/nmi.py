@@ -55,13 +55,10 @@ def ComputeFinalMatrix(Transforms):
             np.asarray(Translation[i]), (1, 3)
         )
 
-    # Convert the final rotation matrix back to Euler angles
-    euler_angles = rotation_matrix_to_euler_angles(final_rotation)
-
     # Create the final transform
     final_transform = sitk.Euler3DTransform()
-    final_transform.SetCenter([0.0, 0.0, 0.0]) 
-    final_transform.SetRotation(*euler_angles)
+    final_transform.SetCenter([0.0, 0.0, 0.0])
+    final_transform.SetMatrix(final_rotation.flatten().tolist())
     final_transform.SetTranslation(final_translation[0].tolist())
 
     return final_transform
@@ -81,6 +78,7 @@ def ElastixReg(fixed_image_path, moving_image_path, output_directory, parameter_
 
     # Run the command, redirecting stdout and stderr to the log file or suppressing them
     if log_file_path:
+        print("log_path : ", log_file_path)
         with open(log_file_path, 'w') as log_file:
             subprocess.run(command, stdout=log_file, stderr=log_file, check=True)
     else:
@@ -91,75 +89,6 @@ def ElastixReg(fixed_image_path, moving_image_path, output_directory, parameter_
     transform_file_path = os.path.join(output_directory, "TransformParameters.0.txt")
     
     return transform_file_path
-
-def rotation_matrix_to_euler_angles(R):
-    """
-    Convert a 3x3 rotation matrix to Euler angles.
-    This assumes the rotation order is ZYX (which is common in many conventions).
-    """
-    sy = np.sqrt(R[0, 0] ** 2 + R[1, 0] ** 2)
-
-    singular = sy < 1e-6
-
-    if not singular:
-        x = np.arctan2(R[2, 1], R[2, 2])
-        y = np.arctan2(-R[2, 0], sy)
-        z = np.arctan2(R[1, 0], R[0, 0])
-    else:
-        x = np.arctan2(-R[1, 2], R[1, 1])
-        y = np.arctan2(-R[2, 0], sy)
-        z = 0
-
-    return np.array([x, y, z])
-
-# def parse_transform_matrix(transform_file_path):
-    with open(transform_file_path, 'r') as f:
-        lines = f.readlines()
-
-    # Find the line containing the transform parameters
-    transform_line = None
-    for line in lines:
-        if "(TransformParameters" in line:
-            transform_line = line.strip()
-            break
-    
-    if transform_line is None:
-        raise ValueError("Transform parameters not found in the file.")
-    
-    # Remove any unwanted characters like parentheses
-    transform_params = transform_line.split(' ')[1:]  # Skip "(TransformParameters"
-    transform_params = [param.replace(')', '').replace('(', '') for param in transform_params]
-    
-    # Convert the cleaned strings to floats
-    try:
-        transform_params = [float(param) for param in transform_params]
-    except ValueError as e:
-        raise ValueError(f"Error parsing transform parameters: {e}")
-    
-    # Assuming the transformation is 3D and affine (Euler or Affine Transform)
-    if len(transform_params) == 6:  # Euler Transform: 3 angles and 3 translations
-        matrix = np.eye(4)
-        rotation_angles = transform_params[:3]
-        translation = transform_params[3:]
-        
-        # Construct the rotation matrix from Euler angles
-        rotation_matrix = sitk.Euler3DTransform()
-        rotation_matrix.SetRotation(*rotation_angles)
-        rotation_matrix = np.array(rotation_matrix.GetMatrix()).reshape(3, 3)
-
-        # Construct the full affine matrix
-        matrix[:3, :3] = rotation_matrix
-        matrix[:3, 3] = translation
-
-    elif len(transform_params) == 12:  # Affine Transform: 9 for rotation/scaling + 3 translations
-        matrix = np.eye(4)
-        matrix[:3, :3] = np.array(transform_params[:9]).reshape(3, 3)
-        matrix[:3, 3] = transform_params[9:]
-
-    else:
-        raise ValueError(f"Unexpected number of transform parameters: {len(transform_params)}")
-
-    return matrix
 
 def main(cbct_folder, mri_folder, output_folder):
     # Generate output folder if it doesn't exist
@@ -181,7 +110,7 @@ def main(cbct_folder, mri_folder, output_folder):
 
                     print(f"Registering CBCT: {cbct_path} with MRI: {mri_path}")
                     log_file_path = os.path.join(patient_output_dir, f'{patient_id}_registration.log')
-                    parameter_file_path = "./param2.txt"
+                    parameter_file_path = "./NMI/param2.txt"
 
                     # Run Elastix registration and get the transform file path
                     transform_file_path = ElastixReg(cbct_path, mri_path, patient_output_dir, parameter_file_path, log_file_path=log_file_path)
