@@ -1,0 +1,46 @@
+// Elastix parameter file
+// Description: Rigid registration with Normalized Mutual Information and Adaptive Stochastic Gradient Descent
+
+// Image sampling parameters
+(FixedInternalImagePixelType "float")
+(MovingInternalImagePixelType "float")
+(FixedImageDimension 3)
+(MovingImageDimension 3)
+(UseDirectionCosines "true")
+
+// Transformation
+(Transform "EulerTransform")
+(AutomaticTransformInitialization "true")
+(AutomaticTransformInitializationMethod "GeometricalCenter")
+
+// Metric
+(Metric "NormalizedMutualInformation")
+(NumberOfHistogramBins 64)
+(Metric0Weight 1.0)
+(UseNormalization "false")
+
+// Optimizer
+(Optimizer "AdaptiveStochasticGradientDescent")
+(ASGDParameterEstimationMethod "DisplacementMagnitude")
+
+// Pyramid Schedule
+(FixedImagePyramid "FixedSmoothingImagePyramid")
+(MovingImagePyramid "MovingSmoothingImagePyramid")
+(FixedImagePyramidSchedule 8 8 8 4 4 4 2 2 2 1 1 1)
+(MovingImagePyramidSchedule 8 8 8 4 4 4 2 2 2 1 1 1)
+
+// Sampling strategy
+(NumberOfSpatialSamples 10000)
+(NewSamplesEveryIteration "true")
+(ImageSampler "RandomCoordinate")
+(SampleRegionSize 50 50 50)
+(SampleRegionMovingImage "false")
+
+// Registration parameters
+(NumberOfResolutions 3)
+(MaximumNumberOfIterations 1000)
+(MaximumStepLength 0.01)
+(AutomaticScalesEstimation "true")
+(WriteResultImage "false")
+(ComputeZYX "true")
+(UseMultiThreadingForMetrics "true")

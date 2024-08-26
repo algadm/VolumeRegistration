@@ -1,0 +1,390 @@
+
+elastix is started at Tue Aug 20 16:57:58 2024.
+
+which elastix:   elastix
+  elastix version: 5.1.0
+  Build date: Jun 22 2023 03:14:27
+  Compiler: GCC version 12.3.0
+  Memory address size: 64-bit
+  CMake version: 3.26.4
+  ITK version: 5.3.0
+
+Command-line arguments: 
+  -f ./images/CBCT/B013_CBCT_Crop_MA.nii.gz -m ./images/MRI/B013_MR_OR_cropLeft.nii.gz -out ./output_step[05]_iter[1000]_sample[50000]_discre_geometry_test/B013 -p ./param2.txt
+
+elastix runs at: adminlucia-Precision-5820-Tower
+  Linux 6.8.0-40-generic (x64), #40-Ubuntu SMP PREEMPT_DYNAMIC Fri Jul  5 10:34:03 UTC 2024
+  with 128500 MB memory, and 8 cores @ 1201 MHz.
+-------------------------------------------------------------------------
+
+Running elastix with parameter file 0: "./param2.txt".
+
+Current time: Tue Aug 20 16:57:58 2024.
+Reading the elastix parameters from file ...
+
+Installing all components.
+InstallingComponents was successful.
+
+ELASTIX version: 5.1.0
+Command line options from ElastixBase:
+-f        ./images/CBCT/B013_CBCT_Crop_MA.nii.gz
+-m        ./images/MRI/B013_MR_OR_cropLeft.nii.gz
+-fMask    unspecified, so no fixed mask used
+-mMask    unspecified, so no moving mask used
+-out      ./output_step[05]_iter[1000]_sample[50000]_discre_geometry_test/B013/
+-p        ./param2.txt
+-threads  unspecified, so all available threads are used
+Command line options from TransformBase:
+-t0       unspecified, so no initial transform used
+
+Reading images...
+Reading images took 403 ms.
+
+WARNING: the fixed pyramid schedule is not fully specified!
+  A default pyramid schedule is used.
+WARNING: the moving pyramid schedule is not fully specified!
+  A default pyramid schedule is used.
+Transform parameters are initialized as: [0, 0, 0, -25.269227901469776, -2.5862397996589976, -12.406542133193327]
+Scales are estimated automatically.
+Scales for transform parameters are: [2994.234525026576, 1610.8816134576005, 1676.718697145491, 1, 1, 1]
+WARNING: The parameter "FinalBSplineInterpolationOrder", requested at entry number 0, does not exist at all.
+  The default value "3" is used instead.
+Initialization of all components (before registration) took: 2 ms.
+Preparation of the image pyramids took: 411 ms.
+
+Resolution: 0
+WARNING: The parameter "ShowExactMetricValue", requested at entry number 0, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "CheckNumberOfSamples", requested at entry number 0, does not exist at all.
+  The default value "true" is used instead.
+Setting the fixed masks took: 0 ms.
+Setting the moving masks took: 0 ms.
+WARNING: The parameter "FixedImageBSplineInterpolationOrder", requested at entry number 0, does not exist at all.
+  The default value "1" is used instead.
+WARNING: The parameter "UseRandomSampleRegion", requested at entry number 0, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "NumberOfFixedHistogramBins", requested at entry number 0, does not exist at all.
+  The default value "32" is used instead.
+WARNING: The parameter "NumberOfMovingHistogramBins", requested at entry number 0, does not exist at all.
+  The default value "32" is used instead.
+WARNING: The parameter "FixedLimitRangeRatio", requested at entry number 0, does not exist at all.
+  The default value "0.01" is used instead.
+WARNING: The parameter "MovingLimitRangeRatio", requested at entry number 0, does not exist at all.
+  The default value "0.01" is used instead.
+WARNING: The parameter "FixedKernelBSplineOrder", requested at entry number 0, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "MovingKernelBSplineOrder", requested at entry number 0, does not exist at all.
+  The default value "3" is used instead.
+WARNING: The parameter "SP_A", requested at entry number 0, does not exist at all.
+  The default value "20" is used instead.
+WARNING: The parameter "MaximumNumberOfSamplingAttempts", requested at entry number 0, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "SigmoidInitialTime", requested at entry number 0, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "MaxBandCovSize", requested at entry number 0, does not exist at all.
+  The default value "192" is used instead.
+WARNING: The parameter "NumberOfBandStructureSamples", requested at entry number 0, does not exist at all.
+  The default value "10" is used instead.
+WARNING: The parameter "UseAdaptiveStepSizes", requested at entry number 0, does not exist at all.
+  The default value "true" is used instead.
+WARNING: The parameter "AutomaticParameterEstimation", requested at entry number 0, does not exist at all.
+  The default value "true" is used instead.
+WARNING: The parameter "UseConstantStep", requested at entry number 0, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "MaximumStepLengthRatio", requested at entry number 0, does not exist at all.
+  The default value "1" is used instead.
+WARNING: The parameter "NumberOfGradientMeasurements", requested at entry number 0, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "NumberOfJacobianMeasurements", requested at entry number 0, does not exist at all.
+  The default value "1000" is used instead.
+WARNING: The parameter "NumberOfSamplesForExactGradient", requested at entry number 0, does not exist at all.
+  The default value "100000" is used instead.
+WARNING: The parameter "SigmoidScaleFactor", requested at entry number 0, does not exist at all.
+  The default value "0.1" is used instead.
+Elastix initialization of all components (for this resolution) took: 0 ms.
+  Computing the fixed image extrema took 0 ms.
+  Computing the moving image extrema took 0 ms.
+Initialization of NormalizedMutualInformation metric took: 1 ms.
+Starting automatic parameter estimation for AdaptiveStochasticGradientDescent ...
+Automatic parameter estimation took 0.00s
+1:ItNr	2:Metric	3a:Time	3b:StepSize	4:||Gradient||	Time[ms]
+0	-1.007625	0.000000	0.159965	0.000427	25.7
+1	-1.007343	0.000000	0.159965	0.000471	27.2
+2	-1.008062	0.000000	0.159965	0.000417	22.4
+3	-1.007657	0.000000	0.159965	0.000481	21.9
+4	-1.007325	0.000000	0.159965	0.000642	21.0
+5	-1.007867	0.000000	0.159965	0.000467	20.8
+6	-1.007703	0.000000	0.159965	0.000508	20.8
+7	-1.007749	0.000000	0.159965	0.000458	21.1
+8	-1.007780	0.000000	0.159965	0.000424	20.9
+9	-1.007822	0.000000	0.159965	0.000483	20.9
+Time spent in resolution 0 (ITK initialization and iterating): 0.223 s.
+Stopping condition: Maximum number of iterations has been reached.
+Settings of AdaptiveStochasticGradientDescent in resolution 0:
+( SP_a 1.000000 )
+( SP_A 20.000000 )
+( SP_alpha 0.602000 )
+( SigmoidMax 1.000000 )
+( SigmoidMin -0.800000 )
+( SigmoidScale 0.000000 )
+
+
+Resolution: 1
+WARNING: The parameter "ShowExactMetricValue", requested at entry number 1, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "CheckNumberOfSamples", requested at entry number 1, does not exist at all.
+  The default value "true" is used instead.
+Setting the fixed masks took: 0 ms.
+Setting the moving masks took: 0 ms.
+WARNING: The parameter "FixedImageBSplineInterpolationOrder", requested at entry number 1, does not exist at all.
+  The default value "1" is used instead.
+WARNING: The parameter "UseRandomSampleRegion", requested at entry number 1, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "NumberOfFixedHistogramBins", requested at entry number 1, does not exist at all.
+  The default value "32" is used instead.
+WARNING: The parameter "NumberOfMovingHistogramBins", requested at entry number 1, does not exist at all.
+  The default value "32" is used instead.
+WARNING: The parameter "FixedLimitRangeRatio", requested at entry number 1, does not exist at all.
+  The default value "0.01" is used instead.
+WARNING: The parameter "MovingLimitRangeRatio", requested at entry number 1, does not exist at all.
+  The default value "0.01" is used instead.
+WARNING: The parameter "FixedKernelBSplineOrder", requested at entry number 1, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "MovingKernelBSplineOrder", requested at entry number 1, does not exist at all.
+  The default value "3" is used instead.
+WARNING: The parameter "SP_A", requested at entry number 1, does not exist at all.
+  The default value "20" is used instead.
+WARNING: The parameter "MaximumNumberOfSamplingAttempts", requested at entry number 1, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "SigmoidInitialTime", requested at entry number 1, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "MaxBandCovSize", requested at entry number 1, does not exist at all.
+  The default value "192" is used instead.
+WARNING: The parameter "NumberOfBandStructureSamples", requested at entry number 1, does not exist at all.
+  The default value "10" is used instead.
+WARNING: The parameter "UseAdaptiveStepSizes", requested at entry number 1, does not exist at all.
+  The default value "true" is used instead.
+WARNING: The parameter "AutomaticParameterEstimation", requested at entry number 1, does not exist at all.
+  The default value "true" is used instead.
+WARNING: The parameter "UseConstantStep", requested at entry number 1, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "MaximumStepLengthRatio", requested at entry number 1, does not exist at all.
+  The default value "1" is used instead.
+WARNING: The parameter "NumberOfGradientMeasurements", requested at entry number 1, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "NumberOfJacobianMeasurements", requested at entry number 1, does not exist at all.
+  The default value "1000" is used instead.
+WARNING: The parameter "NumberOfSamplesForExactGradient", requested at entry number 1, does not exist at all.
+  The default value "100000" is used instead.
+WARNING: The parameter "SigmoidScaleFactor", requested at entry number 1, does not exist at all.
+  The default value "0.1" is used instead.
+Elastix initialization of all components (for this resolution) took: 0 ms.
+  Computing the fixed image extrema took 0 ms.
+  Computing the moving image extrema took 0 ms.
+Initialization of NormalizedMutualInformation metric took: 4 ms.
+Starting automatic parameter estimation for AdaptiveStochasticGradientDescent ...
+Automatic parameter estimation took 0.00s
+1:ItNr	2:Metric	3a:Time	3b:StepSize	4:||Gradient||	Time[ms]
+0	-1.006729	0.000000	0.159965	0.000569	28.2
+1	-1.007085	0.000000	0.159965	0.000425	22.2
+2	-1.006462	0.000000	0.159965	0.000809	22.4
+3	-1.006899	0.000000	0.159965	0.000807	22.3
+4	-1.006894	0.000000	0.159965	0.000378	23.1
+5	-1.007059	0.000000	0.159965	0.000408	23.1
+6	-1.006500	0.000000	0.159965	0.000638	23.0
+7	-1.006652	0.000000	0.159965	0.000454	24.1
+8	-1.006513	0.000000	0.159965	0.000334	24.2
+9	-1.006685	0.000000	0.159965	0.001121	23.4
+Time spent in resolution 1 (ITK initialization and iterating): 0.236 s.
+Stopping condition: Maximum number of iterations has been reached.
+Settings of AdaptiveStochasticGradientDescent in resolution 1:
+( SP_a 1.000000 )
+( SP_A 20.000000 )
+( SP_alpha 0.602000 )
+( SigmoidMax 1.000000 )
+( SigmoidMin -0.800000 )
+( SigmoidScale 0.000000 )
+
+
+Resolution: 2
+WARNING: The parameter "ShowExactMetricValue", requested at entry number 2, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "CheckNumberOfSamples", requested at entry number 2, does not exist at all.
+  The default value "true" is used instead.
+Setting the fixed masks took: 0 ms.
+Setting the moving masks took: 0 ms.
+WARNING: The parameter "FixedImageBSplineInterpolationOrder", requested at entry number 2, does not exist at all.
+  The default value "1" is used instead.
+WARNING: The parameter "UseRandomSampleRegion", requested at entry number 2, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "NumberOfFixedHistogramBins", requested at entry number 2, does not exist at all.
+  The default value "32" is used instead.
+WARNING: The parameter "NumberOfMovingHistogramBins", requested at entry number 2, does not exist at all.
+  The default value "32" is used instead.
+WARNING: The parameter "FixedLimitRangeRatio", requested at entry number 2, does not exist at all.
+  The default value "0.01" is used instead.
+WARNING: The parameter "MovingLimitRangeRatio", requested at entry number 2, does not exist at all.
+  The default value "0.01" is used instead.
+WARNING: The parameter "FixedKernelBSplineOrder", requested at entry number 2, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "MovingKernelBSplineOrder", requested at entry number 2, does not exist at all.
+  The default value "3" is used instead.
+WARNING: The parameter "SP_A", requested at entry number 2, does not exist at all.
+  The default value "20" is used instead.
+WARNING: The parameter "MaximumNumberOfSamplingAttempts", requested at entry number 2, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "SigmoidInitialTime", requested at entry number 2, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "MaxBandCovSize", requested at entry number 2, does not exist at all.
+  The default value "192" is used instead.
+WARNING: The parameter "NumberOfBandStructureSamples", requested at entry number 2, does not exist at all.
+  The default value "10" is used instead.
+WARNING: The parameter "UseAdaptiveStepSizes", requested at entry number 2, does not exist at all.
+  The default value "true" is used instead.
+WARNING: The parameter "AutomaticParameterEstimation", requested at entry number 2, does not exist at all.
+  The default value "true" is used instead.
+WARNING: The parameter "UseConstantStep", requested at entry number 2, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "MaximumStepLengthRatio", requested at entry number 2, does not exist at all.
+  The default value "1" is used instead.
+WARNING: The parameter "NumberOfGradientMeasurements", requested at entry number 2, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "NumberOfJacobianMeasurements", requested at entry number 2, does not exist at all.
+  The default value "1000" is used instead.
+WARNING: The parameter "NumberOfSamplesForExactGradient", requested at entry number 2, does not exist at all.
+  The default value "100000" is used instead.
+WARNING: The parameter "SigmoidScaleFactor", requested at entry number 2, does not exist at all.
+  The default value "0.1" is used instead.
+Elastix initialization of all components (for this resolution) took: 0 ms.
+  Computing the fixed image extrema took 4 ms.
+  Computing the moving image extrema took 3 ms.
+Initialization of NormalizedMutualInformation metric took: 56 ms.
+Starting automatic parameter estimation for AdaptiveStochasticGradientDescent ...
+Automatic parameter estimation took 0.00s
+1:ItNr	2:Metric	3a:Time	3b:StepSize	4:||Gradient||	Time[ms]
+0	-1.004855	0.000000	0.159965	0.000348	93.5
+1	-1.005089	0.000000	0.159965	0.000273	36.0
+2	-1.004945	0.000000	0.159965	0.000485	35.5
+3	-1.005142	0.000000	0.159965	0.000398	36.5
+4	-1.004997	0.000000	0.159965	0.000443	35.8
+5	-1.004765	0.000000	0.159965	0.000310	35.7
+6	-1.005173	0.000000	0.159965	0.000471	34.9
+7	-1.004838	0.000000	0.159965	0.000326	33.5
+8	-1.004856	0.000000	0.159965	0.000212	33.2
+9	-1.004691	0.000000	0.159965	0.000236	32.6
+Time spent in resolution 2 (ITK initialization and iterating): 0.408 s.
+Stopping condition: Maximum number of iterations has been reached.
+Settings of AdaptiveStochasticGradientDescent in resolution 2:
+( SP_a 1.000000 )
+( SP_A 20.000000 )
+( SP_alpha 0.602000 )
+( SigmoidMax 1.000000 )
+( SigmoidMin -0.800000 )
+( SigmoidScale 0.000000 )
+
+
+Resolution: 3
+WARNING: The parameter "ShowExactMetricValue", requested at entry number 3, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "CheckNumberOfSamples", requested at entry number 3, does not exist at all.
+  The default value "true" is used instead.
+Setting the fixed masks took: 0 ms.
+Setting the moving masks took: 0 ms.
+WARNING: The parameter "FixedImageBSplineInterpolationOrder", requested at entry number 3, does not exist at all.
+  The default value "1" is used instead.
+WARNING: The parameter "UseRandomSampleRegion", requested at entry number 3, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "NumberOfFixedHistogramBins", requested at entry number 3, does not exist at all.
+  The default value "32" is used instead.
+WARNING: The parameter "NumberOfMovingHistogramBins", requested at entry number 3, does not exist at all.
+  The default value "32" is used instead.
+WARNING: The parameter "FixedLimitRangeRatio", requested at entry number 3, does not exist at all.
+  The default value "0.01" is used instead.
+WARNING: The parameter "MovingLimitRangeRatio", requested at entry number 3, does not exist at all.
+  The default value "0.01" is used instead.
+WARNING: The parameter "FixedKernelBSplineOrder", requested at entry number 3, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "MovingKernelBSplineOrder", requested at entry number 3, does not exist at all.
+  The default value "3" is used instead.
+WARNING: The parameter "SP_A", requested at entry number 3, does not exist at all.
+  The default value "20" is used instead.
+WARNING: The parameter "MaximumNumberOfSamplingAttempts", requested at entry number 3, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "SigmoidInitialTime", requested at entry number 3, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "MaxBandCovSize", requested at entry number 3, does not exist at all.
+  The default value "192" is used instead.
+WARNING: The parameter "NumberOfBandStructureSamples", requested at entry number 3, does not exist at all.
+  The default value "10" is used instead.
+WARNING: The parameter "UseAdaptiveStepSizes", requested at entry number 3, does not exist at all.
+  The default value "true" is used instead.
+WARNING: The parameter "AutomaticParameterEstimation", requested at entry number 3, does not exist at all.
+  The default value "true" is used instead.
+WARNING: The parameter "UseConstantStep", requested at entry number 3, does not exist at all.
+  The default value "false" is used instead.
+WARNING: The parameter "MaximumStepLengthRatio", requested at entry number 3, does not exist at all.
+  The default value "1" is used instead.
+WARNING: The parameter "NumberOfGradientMeasurements", requested at entry number 3, does not exist at all.
+  The default value "0" is used instead.
+WARNING: The parameter "NumberOfJacobianMeasurements", requested at entry number 3, does not exist at all.
+  The default value "1000" is used instead.
+WARNING: The parameter "NumberOfSamplesForExactGradient", requested at entry number 3, does not exist at all.
+  The default value "100000" is used instead.
+WARNING: The parameter "SigmoidScaleFactor", requested at entry number 3, does not exist at all.
+  The default value "0.1" is used instead.
+Elastix initialization of all components (for this resolution) took: 0 ms.
+  Computing the fixed image extrema took 24 ms.
+  Computing the moving image extrema took 15 ms.
+Initialization of NormalizedMutualInformation metric took: 514 ms.
+Starting automatic parameter estimation for AdaptiveStochasticGradientDescent ...
+Automatic parameter estimation took 0.00s
+1:ItNr	2:Metric	3a:Time	3b:StepSize	4:||Gradient||	Time[ms]
+0	-1.005930	0.000000	0.159965	0.000574	553.5
+1	-1.006239	0.000000	0.159965	0.000671	38.2
+2	-1.006225	0.000000	0.159965	0.000301	37.6
+3	-1.006060	0.000000	0.159965	0.000472	38.6
+4	-1.006185	0.000000	0.159965	0.000492	38.0
+5	-1.006236	0.000000	0.159965	0.000502	38.2
+6	-1.006165	0.000000	0.159965	0.000634	37.9
+7	-1.006227	0.000000	0.159965	0.000754	38.0
+8	-1.006064	0.000000	0.159965	0.000399	37.8
+9	-1.005679	0.000000	0.159965	0.000516	37.8
+Time spent in resolution 3 (ITK initialization and iterating): 0.896 s.
+Stopping condition: Maximum number of iterations has been reached.
+Settings of AdaptiveStochasticGradientDescent in resolution 3:
+( SP_a 1.000000 )
+( SP_A 20.000000 )
+( SP_alpha 0.602000 )
+( SigmoidMax 1.000000 )
+( SigmoidMin -0.800000 )
+( SigmoidScale 0.000000 )
+
+
+
+Creating the TransformParameterFile took 0.00s
+
+Registration result checksum: 2246743441
+
+Skipping applying final transform, no resulting output image generated.
+
+Final metric value  = -1.005679
+Settings of AdaptiveStochasticGradientDescent for all resolutions:
+( SP_a 1.000000 1.000000 1.000000 1.000000 )
+( SP_A 20.000000 20.000000 20.000000 20.000000 )
+( SP_alpha 0.602000 0.602000 0.602000 0.602000 )
+( SigmoidMax 1.000000 1.000000 1.000000 1.000000 )
+( SigmoidMin -0.800000 -0.800000 -0.800000 -0.800000 )
+( SigmoidScale 0.000000 0.000000 0.000000 0.000000 )
+
+Time spent on saving the results, applying the final transform etc.: 5 ms.
+Running elastix with parameter file 0: "./param2.txt", has finished.
+
+
+Current time: Tue Aug 20 16:58:00 2024.
+Time used for running elastix with this parameter file:
+  2.6s.
+
+-------------------------------------------------------------------------
+
+Total time elapsed: 2.6s.
+

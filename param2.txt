@@ -1,0 +1,59 @@
+// Elastix parameter file
+// Description: Rigid registration with all required parameters
+
+// Image sampling parameters
+(FixedInternalImagePixelType "float")
+(MovingInternalImagePixelType "float")
+(FixedImageDimension 3)
+(MovingImageDimension 3)
+(UseDirectionCosines "true")
+
+// Registration
+(Registration "MultiResolutionRegistration")
+
+// Transformation
+(Transform "EulerTransform")
+(AutomaticTransformInitialization "true")
+(AutomaticTransformInitializationMethod "GeometricalCenter")
+
+// Metric
+(Metric "NormalizedMutualInformation")
+(NumberOfHistogramBins 32)
+(Metric0Weight 1.0)
+(UseNormalization "false")
+
+// Optimizer
+(Optimizer "AdaptiveStochasticGradientDescent")
+(ASGDParameterEstimationMethod "ImageDiscrepancy")
+(MaximumStepLength 0.05)
+(NumberOfSpatialSamples 50000)
+(NewSamplesEveryIteration "true")
+
+// Pyramid Schedule
+(FixedImagePyramid "FixedRecursiveImagePyramid")
+(MovingImagePyramid "MovingRecursiveImagePyramid")
+(FixedImagePyramidSchedule 8 8 4 4 2 2)
+(MovingImagePyramidSchedule 8 8 4 4 2 2)
+
+// Image Sampling
+(ImageSampler "RandomCoordinate")
+(SampleRegionSize 50 50 50)
+(SampleRegionMovingImage "false")
+
+// Interpolator
+(Interpolator "BSplineInterpolator")
+(BSplineInterpolationOrder 1)
+
+// Resampling
+(ResampleInterpolator "FinalBSplineInterpolator")
+(Resampler "DefaultResampler")
+
+// Registration parameters
+(NumberOfResolutions 4)
+(MaximumNumberOfIterations 10)
+(AutomaticScalesEstimation "true")
+(WriteResultImage "false")
+(ComputeZYX "true")
+(UseMultiThreadingForMetrics "true")
+
+
