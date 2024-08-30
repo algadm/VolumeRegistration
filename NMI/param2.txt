@@ -18,22 +18,27 @@
 
 // Metric
 (Metric "NormalizedMutualInformation")
-(NumberOfHistogramBins 32)
-(Metric0Weight 1.0)
-(UseNormalization "false")
+(Metric0Weight 0.3 0.25 0.2 0.15 0.1)
+(Metric1 "AdvancedMattesMutualInformation")
+(Metric1Weight 0.1 0.2 0.3 0.4 0.5)
+(Metric2 "CorrelationCoefficient")
+(Metric2Weight 0.0 0.0 0.1 0.2 0.3)
+(NumberOfHistogramBins 128)
+(UseNormalization "true")
 
 // Optimizer
 (Optimizer "AdaptiveStochasticGradientDescent")
 (ASGDParameterEstimationMethod "ImageDiscrepancy")
-(MaximumStepLength 0.05)
-(NumberOfSpatialSamples 50000)
+(MaximumStepLength 0.5)
+(NumberOfSpatialSamples 25000)
+(MaximumNumberOfSamplingAttempts 3)
 (NewSamplesEveryIteration "true")
 
 // Pyramid Schedule
 (FixedImagePyramid "FixedRecursiveImagePyramid")
 (MovingImagePyramid "MovingRecursiveImagePyramid")
-(FixedImagePyramidSchedule 8 8 4 4 2 2)
-(MovingImagePyramidSchedule 8 8 4 4 2 2)
+(FixedImagePyramidSchedule 16 16 16 8 8 8 4 4 4 2 2 2 1 1 1)
+(MovingImagePyramidSchedule 16 16 16 8 8 8 4 4 4 2 2 2 1 1 1)
 
 // Image Sampling
 (ImageSampler "RandomCoordinate")
@@ -42,18 +47,21 @@
 
 // Interpolator
 (Interpolator "BSplineInterpolator")
-(BSplineInterpolationOrder 1)
+(BSplineInterpolationOrder 2)
 
 // Resampling
 (ResampleInterpolator "FinalBSplineInterpolator")
+(FinalBSplineInterpolationOrder 2)
+(FixedImageBSplineInterpolationOrder 2)
 (Resampler "DefaultResampler")
 
 // Registration parameters
-(NumberOfResolutions 4)
-(MaximumNumberOfIterations 10)
+(NumberOfResolutions 5)
+(MaximumNumberOfIterations 2000 2000 2000)
 (AutomaticScalesEstimation "true")
 (WriteResultImage "false")
 (ComputeZYX "true")
 (UseMultiThreadingForMetrics "true")
+(SigmoidScale 0.1)
 
 
