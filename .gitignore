@@ -1,3 +1,7 @@
 MRI2CBCT
 outputs
 images
+torch_env
+datasets
+output
+__pycache__
