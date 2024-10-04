@@ -1,16 +1,11 @@
 import os
-import sys
-import itk
 import torch
 import argparse
 import numpy as np
 import nibabel as nib
 from metrics import NMI
-from nmi import mutual_information
 from torchreg import AffineRegistration
-
-# def nmi_loss_function(moving, static):
-#     return -mutual_information(moving, static, num_bins=64, normalized=True)
+from sklearn.model_selection import ParameterSampler
 
 def get_corresponding_file(folder, patient_id, modality):
     """Get the corresponding file for a given patient ID and modality."""
@@ -31,11 +26,11 @@ def save_as_nifti(moving_path, static_path, output_path):
     print("Saved registered image to:", output_path)
     nib.save(new_nifti, output_path)
 
-def main(cbct_folder, mri_folder, output_folder):
+def main(cbct_folder, mri_folder, output_folder, param_sampler):
     # Generate output folder if it doesn't exist
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-        
+    
     for root, _, files in os.walk(cbct_folder):
         for cbct_file in files:
             if "_CBCT_" in cbct_file and (cbct_file.endswith(".nii") or cbct_file.endswith(".nii.gz")):
@@ -44,46 +39,71 @@ def main(cbct_folder, mri_folder, output_folder):
                 mri_path = get_corresponding_file(mri_folder, patient_id, "_MR_")
 
                 if mri_path:
+                    best_loss = float('inf')  # Initialize to track the best loss
+                    best_params = None        # Initialize to store the best parameter combination
+                    # Iterate over the parameter samples
+                    for params in param_sampler:
+                        # Load images using nibabel
+                        moving_nii = nib.load(mri_path)
+                        static_nii = nib.load(cbct_path)
 
-                    # Load images using nibabel
-                    moving_nii = nib.load(mri_path)
-                    static_nii = nib.load(cbct_path)
-                    
+                        # Get numpy arrays out of niftis
+                        moving = nib.as_closest_canonical(moving_nii).get_fdata()
+                        static = nib.as_closest_canonical(static_nii).get_fdata()
 
-                    # Get numpy arrays out of niftis
-                    moving = nib.as_closest_canonical(moving_nii).get_fdata()
-                    static = nib.as_closest_canonical(static_nii).get_fdata()
+                        # Check if GPU is available
+                        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+                        print(f"\n\033[1mUsing {device.upper()} -- Registering CBCT: {cbct_path} with MRI: {mri_path}")
 
-                    # Check if GPU is available
-                    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-                    print(f"\n\033[1mUsing {device.upper()} -- Registering CBCT: {cbct_path} with MRI: {mri_path}\033[0m")
+                        # Convert numpy arrays to torch tensors
+                        moving = torch.from_numpy(moving).float().to(device)
+                        static = torch.from_numpy(static).float().to(device)
 
-                    # Convert numpy arrays to torch tensors
-                    moving = torch.from_numpy(moving).float().to(device)
-                    static = torch.from_numpy(static).float().to(device)
+                        # Normalize the images
+                        epsilon = 1e-8    # Small value to avoid division by zero
+                        moving_normed = (moving - moving.min()) / (moving.max() - moving.min() + epsilon)
+                        static_normed = (static - static.min()) / (static.max() - static.min() + epsilon)
 
-                    moving_normed = (moving - moving.min()) / (moving.max() - moving.min())
-                    static_normed = (static - static.min()) / (static.max() - static.min())
+                        # Print the current parameter values
+                        print(f"Testing parameters: {params}\033[0m")
 
-                    nmi_loss_function = NMI(intensity_range=None, nbins=64, sigma=0.01, use_mask=False)
+                        # Initialize NMI loss function for rigid registration
+                        nmi_loss_function_rigid = NMI(intensity_range=None, nbins=params['nbins_rigid'], sigma=params['sigma_rigid'], use_mask=False)
 
-                    # Intialize AffineRegistration
-                    reg = AffineRegistration(scales=(3, 1), iterations=(100, 20), is_3d=True, learning_rate=1e-3,
-                                             verbose=True, dissimilarity_function=nmi_loss_function.metric, optimizer=torch.optim.Adam,
-                                             init_translation=None, init_rotation=None, init_zoom=None, init_shear=None,
-                                             with_translation=True, with_rotation=True, with_zoom=False, with_shear=False,
-                                             align_corners=True, interp_mode="trilinear", padding_mode='zeros')
+                        # Initialize AffineRegistration for Rigid registration
+                        reg_rigid = AffineRegistration(scales=(4, 2), iterations=(100, 30), is_3d=True, 
+                                                       learning_rate=params['learning_rate_rigid'],
+                                                       verbose=True, dissimilarity_function=nmi_loss_function_rigid.metric,
+                                                       optimizer=torch.optim.Adam, with_translation=True, with_rotation=True, 
+                                                       with_zoom=False, with_shear=False, align_corners=True,
+                                                       interp_mode="trilinear", padding_mode='zeros')
 
-                    # Run it!
-                    moved_image = reg(moving_normed[None, None],
-                                      static_normed[None, None])
+                        # Perform rigid registration
+                        moved_image = reg_rigid(moving_normed[None, None],
+                                                static_normed[None, None])
+                        
+                        moved_image = moved_image[0, 0]
 
-                    moved_image = moved_image[0, 0]
-                    moved_image = moving.max() * moved_image
+                        # Calculate the final loss
+                        final_loss = -nmi_loss_function_rigid.metric(moved_image[None, None], static_normed[None, None])
+                        print(f"Final Loss (NMI): {final_loss}")
 
-                    # Save the registered image as a NIfTI file
-                    output_path = os.path.join(output_folder, f'{patient_id}_registered.nii.gz')
-                    save_as_nifti(moved_image, cbct_path, output_path)
+                        moved_image = moving.max() * moved_image
+
+                        # Check if this is the best loss so far
+                        if final_loss < best_loss and final_loss > 1e-5:
+                            best_loss = final_loss
+                            best_params = params
+                            print(f"New best parameters found with loss: {best_loss}")
+
+                            # Save the registered image as a NIfTI file
+                            output_path = os.path.join(output_folder, f'{patient_id}_MR_registered.nii.gz')
+                            save_as_nifti(moved_image, cbct_path, output_path)
+
+                    # Print the best result at the end
+                    print(f"Best parameters: {best_params}")
+                    print(f"Best NMI loss: {best_loss}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Register CBCT images with corresponding MRI images.')
@@ -92,4 +112,16 @@ if __name__ == "__main__":
     parser.add_argument('--output_folder', type=str, help='Path to the folder where output transforms will be saved')
     
     args = parser.parse_args()
-    main(args.cbct_folder, args.mri_folder, args.output_folder)
+
+    # Define the parameter grid for hyperparameter search
+    param_grid = {
+        'learning_rate_rigid': np.logspace(-5, -3, 15),   # Learning rate for rigid registration
+        'nbins_rigid': [64],                              # Number of bins for rigid registration NMI
+        'sigma_rigid': np.logspace(-3, -2, 3)             # Sigma for rigid NMI
+    }
+
+    # Number of parameter combinations to sample
+    n_samples = 45
+    param_sampler = ParameterSampler(param_grid, n_iter=n_samples)
+
+    main(args.cbct_folder, args.mri_folder, args.output_folder, param_sampler)
