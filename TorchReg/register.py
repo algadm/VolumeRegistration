@@ -84,7 +84,7 @@ def main(cbct_folder, mri_folder, output_folder, param_sampler):
                         
                         moved_image = moved_image[0, 0]
 
-                        # Calculate the final loss
+                        # Compute the final loss
                         final_loss = -nmi_loss_function_rigid.metric(moved_image[None, None], static_normed[None, None])
                         print(f"Final Loss (NMI): {final_loss}")
 
