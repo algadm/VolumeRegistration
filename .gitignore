@@ -1,5 +1,5 @@
 MRI2CBCT
-outputs*
+output*
 images
 torch_env
 datasets
