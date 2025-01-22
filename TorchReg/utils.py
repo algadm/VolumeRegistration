@@ -35,7 +35,7 @@ def get_corresponding_file(folder, patient_id, modality):
                 return os.path.join(root, file)
     return None
 
-def apply_transform_to_image(image_path, transform_matrix, output_path, default_pixel_value=0):
+def apply_transform_to_image(image_path, transform_matrix, output_path, reference_image, default_pixel_value=0):
     """
     Apply an affine transformation to an image and save the transformed image.
 
@@ -43,9 +43,12 @@ def apply_transform_to_image(image_path, transform_matrix, output_path, default_
         image_path (str): Path to the input image.
         transform_matrix (torch.Tensor): Transformation matrix from registration.
         output_path (str): Path to save the transformed image.
+        reference_image (str): Path to the image to use as a reference for resampling.
+        default_pixel_value (float): Default pixel value for regions outside the transformed image.
     """
     try:
         image = sitk.ReadImage(image_path)
+        reference_image = sitk.ReadImage(reference_image)
     except Exception as e:
         print(f"Error reading image {image_path}: {e}")
         return
@@ -65,7 +68,7 @@ def apply_transform_to_image(image_path, transform_matrix, output_path, default_
     transform.SetTranslation(affine_np[:3, 3])
 
     resample = sitk.ResampleImageFilter()
-    resample.SetReferenceImage(normalized_image)
+    resample.SetReferenceImage(reference_image)
     resample.SetTransform(transform)
     resample.SetInterpolator(sitk.sitkLinear)
     resample.SetDefaultPixelValue(default_pixel_value)
@@ -74,3 +77,27 @@ def apply_transform_to_image(image_path, transform_matrix, output_path, default_
     transformed_image = resample.Execute(normalized_image)
     sitk.WriteImage(transformed_image, output_path)
     print(f"Transformed and normalized image saved to {output_path}")
+    
+def resample_to_match(reference_path, moving_path):
+    """
+    Resample a moving image to match the orientation, resolution, and grid of a reference image.
+
+    Args:
+        reference_path (str): Path to the reference image.
+        moving_path (str): Path to the moving image.
+
+    Returns:
+        SimpleITK.Image: Resampled moving image.
+    """
+    reference = sitk.ReadImage(reference_path)
+    moving = sitk.ReadImage(moving_path)
+    
+    resample = sitk.ResampleImageFilter()
+    resample.SetReferenceImage(reference)
+    resample.SetInterpolator(sitk.sitkLinear)
+    resample.SetDefaultPixelValue(0)
+    resample.SetOutputPixelType(moving.GetPixelID())
+    
+    resampled_moving = resample.Execute(moving)
+    print("Resampling completed.")
+    return resampled_moving

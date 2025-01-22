@@ -32,17 +32,17 @@ def main(cbct_folder, mri_folder, output_folder):
         output_folder (str): Path to save the registered images.
         param_sampler (ParameterSampler): Sampler for generating hyperparameter combinations.
     """
+    if not os.path.isdir(cbct_folder): raise ValueError(f"CBCT folder does not exist: {cbct_folder}")
+    if not os.path.isdir(mri_folder): raise ValueError(f"MRI folder does not exist: {mri_folder}")
+    
     os.makedirs(output_folder, exist_ok=True)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     param_grid = {
-        'learning_rate': np.logspace(-5, -3, 10),
-        'sigma': np.logspace(-3, -2, 3)
+        'learning_rate': np.linspace(1e-5, 1e-3, 10),
+        'sigma': np.linspace(1e-3, 1e-2, 3)
     }
     param_sampler = ParameterSampler(param_grid, n_iter=30)
-
-    if not os.path.isdir(cbct_folder): raise ValueError(f"CBCT folder does not exist: {cbct_folder}")
-    if not os.path.isdir(mri_folder): raise ValueError(f"MRI folder does not exist: {mri_folder}")
 
     for root, _, files in os.walk(cbct_folder):
         for cbct_file in files:
@@ -69,19 +69,19 @@ def main(cbct_folder, mri_folder, output_folder):
 
                 best_loss = float('inf')
                 for params in param_sampler:
-                    print(f"\n\033[1mUsing {device.upper()} -- Registering CBCT: {cbct_path} with MRI: {mri_path}")
+                    print(f"\n\033[1mUsing {device.upper()} -- Registering MRI: {mri_path} to CBCT: {cbct_path}")
                     print(f"Testing parameters: {params}\033[0m")
 
-                    nmi_loss_function_rigid = NMI(intensity_range=None, nbins=32, sigma=params['sigma'], use_mask=False)
-                    reg_rigid = AffineRegistration(scales=(4, 2), iterations=(100, 30), is_3d=True, 
+                    nmi_loss_function = NMI(intensity_range=None, nbins=32, sigma=params['sigma'], use_mask=False)
+                    reg = AffineRegistration(scales=(4, 2), iterations=(100, 30), is_3d=True, 
                                                     learning_rate=params['learning_rate'],
-                                                    dissimilarity_function=nmi_loss_function_rigid,
+                                                    dissimilarity_function=nmi_loss_function,
                                                     optimizer=torch.optim.Adam,
                                                     with_translation=True, with_rotation=True, 
                                                     with_zoom=False, with_shear=False,
                                                     interp_mode="trilinear", padding_mode='zeros')
-                    moved_image = reg_rigid(moving_normed[None, None], static_normed[None, None])[0,0]
-                    loss = nmi_loss_function_rigid(moved_image[None, None], static_normed[None, None])
+                    moved_image = reg(moving_normed[None, None], static_normed[None, None])[0,0]
+                    loss = nmi_loss_function(moved_image[None, None], static_normed[None, None])
 
                     if loss < best_loss:
                         best_loss = loss
