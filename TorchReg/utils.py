@@ -220,27 +220,41 @@ def prealign_mri_to_cbct(mri_path, cbct_path, order=1):
     # Load MRI and CBCT NIfTI images
     moving_nii = nib.load(mri_path)
     static_nii = nib.load(cbct_path)
-    
     moving_nii = nib.as_closest_canonical(moving_nii)
     static_nii = nib.as_closest_canonical(static_nii)
 
-    # Extract affines
+    # Get affines
     A_mri = moving_nii.affine
     A_cbct = static_nii.affine
-    
-    moving_spacing = moving_nii.header.get_zooms()
-    moving_spacing = tuple(float(s) for s in moving_spacing)
 
-    # Compute transformation to align MRI to CBCT space
-    prealign_transform = A_cbct @ np.linalg.inv(A_mri)
+    # Extract rotation matrices (ignores scaling/shear)
+    def get_rotation(affine):
+        R = affine[:3, :3]
+        # Orthogonalize using SVD
+        U, _, Vt = np.linalg.svd(R)
+        return U @ Vt
 
-    # Apply transformation to MRI
+    R_mri = get_rotation(A_mri)
+    R_cbct = get_rotation(A_cbct)
+
+    # Compute rotation correction
+    R_correction = R_cbct @ R_mri.T
+
+    # Compute translation correction
+    T_correction = A_cbct[:3, 3] - R_correction @ A_mri[:3, 3]
+
+    # Build rigid transformation matrix
+    prealign_transform = np.eye(4)
+    prealign_transform[:3, :3] = R_correction
+    prealign_transform[:3, 3] = T_correction
+
+    # Apply transformation (preserves MRI's original voxel spacing)
     moving_aligned = apply_affine_to_nifti(moving_nii, prealign_transform)
 
-    # Resample both images to a common shape
+    # Resample to common shape
     moving_resampled, static_resampled = resample_to_match(moving_aligned, static_nii, order=order)
-
-    return moving_resampled, static_resampled, prealign_transform, moving_spacing
+    
+    return moving_resampled, static_resampled, prealign_transform, moving_nii.header.get_zooms()
 
 def apply_affine_to_nifti(nifti_img, affine):
     """
@@ -258,10 +272,8 @@ def apply_affine_to_nifti(nifti_img, affine):
     transformed_img : nibabel.Nifti1Image
         The transformed NIfTI image.
     """
-    img_data = nifti_img.get_fdata()
     new_affine = affine @ nifti_img.affine  # Apply transformation to affine
-    transformed_img = nib.Nifti1Image(img_data, new_affine, header=nifti_img.header)
-    return transformed_img
+    return nib.Nifti1Image(nifti_img.get_fdata(), new_affine, header=nifti_img.header)
 
 def fix_mri_orientation(moving_nii, static_nii):
     """Fix MRI orientation by aligning its rotation to CBCT."""

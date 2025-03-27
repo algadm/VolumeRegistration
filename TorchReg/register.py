@@ -1,5 +1,6 @@
 import os
 import torch
+import shutil
 import argparse
 import numpy as np
 import nibabel as nib
@@ -10,7 +11,7 @@ from torchreg import AffineRegistration
 from sklearn.model_selection import ParameterSampler
 from utils import get_corresponding_file, resample_to_match, downsample, prealign_mri_to_cbct, fix_mri_orientation, convert_transform_for_slicer, resample_image, sitk_to_nib
 
-def main(cbct_folder, mri_folder, output_folder):
+def main(cbct_folder, mri_folder, output_folder, temp_mri, temp_cbct):
     """
     Main function to perform registration of CBCT images with corresponding MRI images.
 
@@ -18,15 +19,11 @@ def main(cbct_folder, mri_folder, output_folder):
         cbct_folder (str): Path to the folder containing CBCT images.
         mri_folder (str): Path to the folder containing MRI images.
         output_folder (str): Path to save the registered images.
-        param_sampler (ParameterSampler): Sampler for generating hyperparameter combinations.
+        temp_mri (str): Temporary folder for MRI images.
+        temp_cbct (str): Temporary folder for CBCT images.
     """
     if not os.path.isdir(cbct_folder): raise ValueError(f"CBCT folder does not exist: {cbct_folder}")
     if not os.path.isdir(mri_folder): raise ValueError(f"MRI folder does not exist: {mri_folder}")
-    
-    temp_mri_folder_path = str(Path(mri_folder).parent) + '/temp/MRI/'
-    temp_cbct_folder_path = str(Path(cbct_folder).parent) + '/temp/CBCT/'
-    os.makedirs(temp_mri_folder_path, exist_ok=True)
-    os.makedirs(temp_cbct_folder_path, exist_ok=True)
     
     os.makedirs(output_folder, exist_ok=True)
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -52,18 +49,15 @@ def main(cbct_folder, mri_folder, output_folder):
                 output_path = os.path.join(output_folder, f'{patient_id}_MR_registered.tfm')
 
                 moving_nii, static_nii, prealign_transform, mri_spacing = prealign_mri_to_cbct(mri_path, cbct_path)
-                moving_nii = fix_mri_orientation(moving_nii, static_nii)
-                                
-                moving_sitk = resample_image(moving_nii, mri_spacing, sitk.sitkLinear)
                 
-                static_spacing = tuple(float(s) for s in static_nii.header.get_zooms())
+                nib.save(moving_nii, os.path.join(temp_mri, f"{patient_id}_prealigned.nii.gz"))
+                          
+                static_spacing = tuple(float(s) for s in static_nii.header.get_zooms())      
+                moving_sitk = resample_image(moving_nii, static_spacing, sitk.sitkLinear)
                 static_sitk = resample_image(static_nii, static_spacing, sitk.sitkLinear)
                 
-                temp_cbct_path = os.path.join(temp_cbct_folder_path, os.path.basename(cbct_path))
-                temp_mri_path = os.path.join(temp_mri_folder_path, os.path.basename(mri_path))
-                
-                nib.save(sitk_to_nib(moving_sitk), temp_mri_path)
-                nib.save(sitk_to_nib(static_sitk), temp_cbct_path)
+                nib.save(sitk_to_nib(moving_sitk), os.path.join(temp_mri, os.path.basename(mri_path)))
+                nib.save(sitk_to_nib(static_sitk), os.path.join(temp_cbct, os.path.basename(cbct_path)))
                 
                 # Convert to PyTorch tensors
                 moving_data = sitk.GetArrayFromImage(moving_sitk)
@@ -81,7 +75,7 @@ def main(cbct_folder, mri_folder, output_folder):
                 best_transform = None
                 
                 for params in param_sampler:
-                    print(f"\n\033[1mUsing {device.upper()} -- Registering MRI: {temp_mri_path} to CBCT: {temp_cbct_path}")
+                    print(f"\n\033[1mUsing {device.upper()} -- Registering MRI: {temp_mri} to CBCT: {temp_cbct}")
                     print(f"Testing parameters: {params}\033[0m")
 
                     nmi_loss_function = NMI(intensity_range=None, nbins=32, sigma=params['sigma'], use_mask=False)
@@ -116,7 +110,6 @@ def main(cbct_folder, mri_folder, output_folder):
                     
                     rotation = best_transform_lps_inv[:3, :3].flatten().tolist()
                     translation = best_transform_lps_inv[:3, 3].tolist()
-                    # print(f"Best transformation found: {best_transform_lps}")
                     
                     sitk_transform = sitk.AffineTransform(3)
                     sitk_transform.SetMatrix(rotation)
@@ -133,6 +126,20 @@ if __name__ == "__main__":
     parser.add_argument('--cbct_folder', type=str, help='Path to the folder containing CBCT images')
     parser.add_argument('--mri_folder', type=str, help='Path to the folder containing MRI images')
     parser.add_argument('--output_folder', type=str, help='Path to the folder where output transforms will be saved')
+    parser.add_argument('--del_temp', action='store_true', help='Delete temporary files after processing')
     args = parser.parse_args()
+    
+    temp_folder = str(Path(args.mri_folder).parent) + '/temp/'
+    temp_mri_folder_path = temp_folder + 'mri/'
+    temp_cbct_folder_path = temp_folder + 'cbct/'
+    os.makedirs(temp_mri_folder_path, exist_ok=True)
+    os.makedirs(temp_cbct_folder_path, exist_ok=True)
 
-    main(args.cbct_folder, args.mri_folder, args.output_folder)
+    main(args.cbct_folder, args.mri_folder, args.output_folder, temp_mri_folder_path, temp_cbct_folder_path)
+    
+    if args.del_temp:
+        if os.path.exists(temp_folder):
+            shutil.rmtree(temp_folder)
+            print(f"Temporary folder {temp_folder} deleted.")
+        else:
+            print(f"Temporary folder {temp_folder} does not exist.")
